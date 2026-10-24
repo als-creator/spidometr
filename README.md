@@ -70,6 +70,61 @@ git tag v1.0.2
 git push origin v1.0.2
 ```
 
+## Неподписанные сборки
+
+Релизные бинарники не подписаны Apple Developer ID и не имеют
+Authenticode-подписи. Это не влияет на работу самой программы, но ОС может
+показать предупреждение при первом запуске.
+
+Перед запуском сверьте SHA-256 файла с `checksums.txt` из релиза.
+Запускайте только те файлы, которые скачаны из официального релиза.
+
+**macOS**
+
+1. Распакуйте архив и выполните `chmod +x spidometr_*`.
+2. Если Gatekeeper блокирует запуск: System Settings → Privacy & Security →
+   Open Anyway.
+3. Для файла, скачанного через браузер, можно снять quarantine после проверки
+   контрольной суммы:
+
+```sh
+xattr -d com.apple.quarantine ./spidometr_1.0.2_darwin_arm64
+```
+
+На macOS arm64 Go ставит ad-hoc подпись, но для Gatekeeper это не заменяет
+Developer ID и нотаризацию.
+
+**Windows**
+
+1. При предупреждении SmartScreen: More info → Run anyway.
+2. В корпоративных сетях AppLocker/WDAC может блокировать неподписанный
+   `.exe` полностью.
+3. Проверить SHA-256 можно командой
+   `certutil -hashfile spidometr_1.0.2_windows_amd64.exe SHA256`.
+
+**Linux**
+
+GitHub отдаёт raw-бинарник без Unix-бита выполнения, поэтому его нужно
+выставить вручную:
+
+```sh
+chmod +x spidometr_1.0.2_linux_amd64
+./spidometr_1.0.2_linux_amd64
+```
+
+Установить в `PATH` (если `~/.local/bin` уже добавлен в `PATH`):
+
+```sh
+install -Dm755 spidometr_1.0.2_linux_amd64 ~/.local/bin/spidometr
+spidometr
+```
+
+В архиве `.tar.gz` бит выполнения уже сохранён — после `tar -xzf` бинарник
+запускается сразу.
+
+Сборка из исходников и `go install` не используют quarantine/SmartScreen:
+бинарник создаётся локально.
+
 ## Флаги
 
 | Флаг | По умолчанию | Назначение |
