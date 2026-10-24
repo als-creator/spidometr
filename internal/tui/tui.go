@@ -50,14 +50,15 @@ const (
 
 // Runner управляет состоянием замера и отрисовкой.
 type Runner struct {
-	tr      *i18n.Translator
-	app     *tview.Application
-	pages   *tview.Pages
-	version string
-	th      theme.Theme
-	themeID string
-	layout  int
-	sys     sysinfo.Info
+	tr          *i18n.Translator
+	app         *tview.Application
+	pages       *tview.Pages
+	version     string
+	th          theme.Theme
+	themeID     string
+	themeBefore string
+	layout      int
+	sys         sysinfo.Info
 
 	headerTitle       *tview.TextView
 	headerStatus      *tview.TextView
@@ -237,7 +238,7 @@ func (r *Runner) buildMain() tview.Primitive {
 		// Крупные карточки скорости друг под другом.
 		return newCentered(r.buildFocusGrid(), 88, 24, r.th.Background)
 	default:
-		// Дефолт: соединение, результат, источник, скачивание и загрузка.
+		// Дефолт: источник, соединение, скачивание/загрузка, результат.
 		return newCentered(r.buildDefaultGrid(), 88, 24, r.th.Background)
 	}
 }
@@ -285,14 +286,14 @@ func (r *Runner) buildDefaultGrid() tview.Primitive {
 	r.connectionCompact.SetWrap(false)
 
 	grid := tview.NewGrid().
-		SetRows(4, 1, 5, 1, 4, 1, -1).
+		SetRows(4, 1, 4, 1, -1, 1, 5).
 		SetColumns(0, 1, 0)
 	grid.SetBackgroundColor(tcell.GetColor(r.th.Background))
-	grid.AddItem(r.connectionCompact, 0, 0, 1, 3, 0, 0, false)
-	grid.AddItem(r.stats, 2, 0, 1, 3, 0, 0, false)
-	grid.AddItem(r.info, 4, 0, 1, 3, 0, 0, false)
-	grid.AddItem(r.downloadCard, 6, 0, 1, 1, 0, 0, false)
-	grid.AddItem(r.uploadCard, 6, 2, 1, 1, 0, 0, false)
+	grid.AddItem(r.info, 0, 0, 1, 3, 0, 0, false)
+	grid.AddItem(r.connectionCompact, 2, 0, 1, 3, 0, 0, false)
+	grid.AddItem(r.downloadCard, 4, 0, 1, 1, 0, 0, false)
+	grid.AddItem(r.uploadCard, 4, 2, 1, 1, 0, 0, false)
+	grid.AddItem(r.stats, 6, 0, 1, 3, 0, 0, false)
 	return grid
 }
 
@@ -440,6 +441,10 @@ func (r *Runner) buildThemeModal() tview.Primitive {
 			break
 		}
 	}
+	// Предпросмотр: тема применяется сразу при перемещении по списку.
+	r.themeList.SetChangedFunc(func(index int, _, _ string, _ rune) {
+		r.previewTheme(index)
+	})
 	content := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(r.themeList, 0, 1, true).
 		AddItem(r.modalHint(), 1, 0, false)
@@ -731,6 +736,7 @@ func (r *Runner) applyModalChoice() {
 		if index < 0 || index >= len(all) {
 			return
 		}
+		r.themeBefore = ""
 		r.setTheme(all[index].ID)
 	}
 }
@@ -789,10 +795,37 @@ func (r *Runner) openSourceModal() {
 }
 
 func (r *Runner) openThemeModal() {
+	r.themeBefore = r.themeID
 	r.modalOpen = true
 	r.activeModal = "themes"
 	r.pages.ShowPage("themes")
 	r.app.SetFocus(r.themeList)
+}
+
+// previewTheme применяет тему под курсором, не закрывая окно выбора и
+// не сохраняя её до подтверждения Enter.
+func (r *Runner) previewTheme(index int) {
+	all := theme.All()
+	if index < 0 || index >= len(all) {
+		return
+	}
+	th, ok := theme.Get(all[index].ID)
+	if !ok || th.ID == r.themeID {
+		return
+	}
+	r.th = th
+	r.themeID = th.ID
+	r.rebuildThemeModal()
+}
+
+func (r *Runner) rebuildThemeModal() {
+	root := r.build()
+	r.app.SetRoot(root, true)
+	r.pages.ShowPage("themes")
+	r.modalOpen = true
+	r.activeModal = "themes"
+	r.app.SetFocus(r.themeList)
+	r.render()
 }
 
 func (r *Runner) openHelpModal() {
@@ -826,6 +859,18 @@ func (r *Runner) openGeoModal() {
 }
 
 func (r *Runner) closeModal() {
+	if r.activeModal == "themes" && r.themeBefore != "" {
+		revert := r.themeBefore
+		r.themeBefore = ""
+		if revert != r.themeID {
+			if th, ok := theme.Get(revert); ok {
+				r.th = th
+				r.themeID = th.ID
+				r.rebuild()
+				return
+			}
+		}
+	}
 	r.modalOpen = false
 	r.activeModal = ""
 	r.pages.HidePage("sources")

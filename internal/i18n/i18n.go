@@ -517,8 +517,8 @@ var messages = map[string]message{
 		en: "UI theme: classic, dracula, ayu, tokyonight, orange, nord",
 	},
 	"flagLayout": {
-		ru: "вариант расположения: 0 — соединение, результат, источник, скорость, 1 — исходный с информацией, 2 — панель сбоку, 3 — с историей, 4 — крупные карточки",
-		en: "layout: 0 — connection, result, source, speed, 1 — original with info, 2 — sidebar, 3 — with history, 4 — large cards",
+		ru: "вариант расположения: 0 — источник, соединение, скачивание/загрузка, результат, 1 — исходный с информацией, 2 — панель сбоку, 3 — с историей, 4 — крупные карточки",
+		en: "layout: 0 — source, connection, download/upload, result, 1 — original with info, 2 — sidebar, 3 — with history, 4 — large cards",
 	},
 	"errUnknownTheme": {
 		ru: "неизвестная тема %q, доступны: %s",
