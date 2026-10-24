@@ -1,3 +1,5 @@
+// Command spidometr — CLI/TUI для замера скорости интернета.
+// Аналог speedtest-cli после блокировки Speedtest в РФ.
 package main
 
 import (

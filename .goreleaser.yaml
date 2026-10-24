@@ -24,7 +24,8 @@ builds:
       - -X main.version={{ .Version }}
 
 archives:
-  - formats:
+  - id: archives
+    formats:
       - tar.gz
     format_overrides:
       - goos: windows
@@ -36,6 +37,13 @@ archives:
     files:
       - README.md
       - LICENSE
+
+  # Готовые исполняемые файлы без архивов: скачал, chmod +x и запустил.
+  - id: binaries
+    formats:
+      - binary
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
 
 checksum:
   name_template: checksums.txt
