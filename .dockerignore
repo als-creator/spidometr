@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md
+CONTEXT.md
+TODO.md
+spidometr
+spidometr.exe
+spidometr_*

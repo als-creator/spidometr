@@ -1,0 +1,29 @@
+# Бинарники и артефакты сборки
+/spidometr
+/spidometr.exe
+/spidometr_*
+/dist/
+/build/
+*.test
+*.out
+coverage.*
+
+# Логи и временные файлы
+*.log
+/tmp/
+/.cache/
+
+# Рабочие заметки, контекст и служебные файлы разработки
+CONTEXT.md
+TODO.md
+AGENTS.md
+FORK.md
+STYLE.md
+NOTES.md
+*.local.md
+
+# Редакторы и ОС
+.idea/
+.vscode/
+.DS_Store
+*.swp
