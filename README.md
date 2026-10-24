@@ -39,6 +39,16 @@ docker build -t spidometr .
 docker run --rm -it spidometr
 ```
 
+## Релизы
+
+Пуш тега `v*` запускает GitHub Actions и GoReleaser. В релиз попадают
+`linux`, `macOS` и `Windows` для `amd64`/`arm64`, архивы и `checksums.txt`.
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ## Флаги
 
 | Флаг | По умолчанию | Назначение |

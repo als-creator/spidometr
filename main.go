@@ -23,7 +23,8 @@ import (
 	"github.com/als-creator/spidometr/sources"
 )
 
-const version = "1.0.0"
+// version подставляется при релизной сборке через -ldflags "-X main.version=...".
+var version = "1.0.0"
 
 type options struct {
 	source  sources.SpeedSource
